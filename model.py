@@ -1,3 +1,4 @@
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
@@ -79,3 +80,22 @@ class LiteSpectralNet(nn.Module):
         x = self.decoder[1:](x)
 
         return x.squeeze(1)
+
+
+class Loss(nn.Module):
+    def __init__(
+        self, tv_weight: float = 0.1, mrae_weight: float = 0, eps: float = 1e-6
+    ):
+        super().__init__()
+        self.mse = nn.MSELoss(reduction="mean")
+        self.tv_weight = tv_weight
+        self.mrae_weight = mrae_weight
+        self.eps = eps
+
+    def forward(self, y_pred: torch.Tensor, y_true: torch.Tensor):
+        mse_loss = self.mse(y_pred, y_true)
+        tv_loss = torch.mean(torch.abs(y_pred[:, 1:] - y_pred[:, :-1]))
+        rel_abs = torch.abs(y_pred - y_true) / (torch.abs(y_true) + self.eps)
+        mrae_loss = torch.mean(rel_abs)
+        total = mse_loss + self.tv_weight * tv_loss + self.mrae_weight * mrae_loss
+        return total
