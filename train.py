@@ -1,26 +1,22 @@
 import torch
-import torch.nn as nn
 import scipy.io as scio
 import time
 import math
 import torch.nn.functional as F
-import scipy.io as sio
-import numpy as np
 import os
 from model import *
-
 
 dtype = torch.float
 device_data = torch.device("cpu")
 device_train = torch.device("cuda:0")
 device_test = torch.device("cpu")
+file_path = "./data/train_dataset.mat"
 
 BATCH_SIZE = 2000
 INFERENCE_BATCH_SIZE = 400000
-
 TRAINING_DATA_RATIO = 0.8
 DATA_SIZE = 1 * 1000 * 1000
-EPOCH_NUM = 501
+EPOCH_NUM = 300
 TEST_INTERVAL = 20
 LR = 1e-3
 LR_DECAY_STEP = 2000
@@ -30,11 +26,10 @@ TV_WEIGHT = 1e-2
 MRAE_WEIGHT = 1e-2
 DROPOUT_RATE = 0.1
 WEIGHT_DECAY = 3e-3
-FILE_PATH = "./data/train_dataset.mat"
 
 
 def main():
-    data = scio.loadmat(FILE_PATH)
+    data = scio.loadmat(file_path)
     Input_data = torch.tensor(data["input_data"][:, :], device=device_data, dtype=dtype)
     Output_data = torch.tensor(
         data["output_data"][:, :], device=device_data, dtype=dtype
@@ -66,7 +61,6 @@ def main():
     fnet = LiteSpectralNet(output_channel=output_channel)
     fnet.to(device_train)
     fnet.train()
-    total_params = sum(p.numel() for p in fnet.parameters())
 
     LossFcn = Loss(tv_weight=TV_WEIGHT, mrae_weight=MRAE_WEIGHT)
     optimizer = torch.optim.AdamW(fnet.parameters(), lr=LR, weight_decay=WEIGHT_DECAY)
