@@ -4,7 +4,8 @@
 
 ### LSNet's Structure
 
-![image-20251107213148390](C:\Users\z1002\AppData\Roaming\Typora\typora-user-images\image-20251107213148390.png)
+<img width="800" height="429" alt="image" src="https://github.com/user-attachments/assets/8318a587-d25e-407b-881c-1fd478dc2160" />
+
 
 ### 1. Residual Depthwise Separable Convolution (ResidualDW)
 
